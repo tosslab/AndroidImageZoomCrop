@@ -24,18 +24,17 @@ import io.togoto.imagezoomcrop.photoview.IGetImageBounds;
  */
 public class CropOverlayView extends View implements IGetImageBounds {
 
+    private static final int DEFAULT_CORNER_RADIUS = 6;
+    private static final int DEFAULT_OVERLAY_COLOR = Color.argb(99, 00, 00, 00);
     //Defaults
     private boolean DEFAULT_GUIDELINES = true;
+    private boolean centerInParent = false;
     private int DEFAULT_MARGINTOP = 100;
-    private int DEFAULT_MARGINSIDE = 50;
+    private int DEFAULT_MARGINSIDE = 4;
     private int DEFAULT_MIN_WIDTH = 500;
     private int DEFAULT_MAX_WIDTH = 700;
-
     // we are cropping square image so width and height will always be equal
     private int DEFAULT_CROPWIDTH = 600;
-    private static final int DEFAULT_CORNER_RADIUS = 6;
-    private static final int DEFAULT_OVERLAY_COLOR = Color.argb(204, 41, 48, 63);
-
     // The Paint used to darken the surrounding areas outside the crop area.
     private Paint mBackgroundPaint;
 
@@ -79,6 +78,7 @@ public class CropOverlayView extends View implements IGetImageBounds {
             mMarginSide = ta.getDimensionPixelSize(R.styleable.CropOverlayView_marginSide, DEFAULT_MARGINSIDE);
             mMinWidth = ta.getDimensionPixelSize(R.styleable.CropOverlayView_minWidth, DEFAULT_MIN_WIDTH);
             mMaxWidth = ta.getDimensionPixelSize(R.styleable.CropOverlayView_maxWidth, DEFAULT_MAX_WIDTH);
+            centerInParent = ta.getBoolean(R.styleable.CropOverlayView_centerInParent, true);
             final float defaultRadius = TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, DEFAULT_CORNER_RADIUS, mContext.getResources().getDisplayMetrics());
             mCornerRadius = ta.getDimensionPixelSize(R.styleable.CropOverlayView_cornerRadius, (int) defaultRadius);
@@ -103,13 +103,12 @@ public class CropOverlayView extends View implements IGetImageBounds {
         mBitmapRect.top = Edge.TOP.getCoordinate();
         mBitmapRect.right = Edge.RIGHT.getCoordinate();
         mBitmapRect.bottom = Edge.BOTTOM.getCoordinate();
-
-        mClipPath.addRoundRect(mBitmapRect, mCornerRadius, mCornerRadius, Path.Direction.CW);
+        mClipPath.addRect(mBitmapRect, Path.Direction.CW);
         canvas.clipPath(mClipPath, Region.Op.DIFFERENCE);
         canvas.drawColor(mOverlayColor);
         mClipPath.reset();
         canvas.restore();
-        canvas.drawRoundRect(mBitmapRect, mCornerRadius, mCornerRadius, mBorderPaint);
+        canvas.drawRect(mBitmapRect, mBorderPaint);
 
         //GT :  Drop shadow not working right now. Commenting the code now
 //        //Draw shadow
@@ -131,13 +130,30 @@ public class CropOverlayView extends View implements IGetImageBounds {
     // Private Methods /////////////////////////////////////////////////////////
     private void init(Context context) {
         int w = context.getResources().getDisplayMetrics().widthPixels;
+        int h = context.getResources().getDisplayMetrics().heightPixels;
+        // 3dp는 라인
         cropWidth = w - 2 * mMarginSide;
         //noinspection SuspiciousNameCombination
         cropHeight = cropWidth;
-        int edgeT = mMarginTop;
-        int edgeB = mMarginTop + cropHeight;
-        int edgeL = mMarginSide;
-        int edgeR = mMarginSide + cropWidth;
+
+        int edgeT;
+        int edgeB;
+        int edgeL;
+        int edgeR;
+
+        if (centerInParent) {
+            mMarginTop = (h - getStatusBarHeight() - getActionbarSize() - cropHeight) / 2;
+            edgeT = mMarginTop;
+            edgeB = mMarginTop + cropHeight;
+            edgeL = mMarginSide;
+            edgeR = mMarginSide + cropWidth;
+        } else {
+            edgeT = mMarginTop;
+            edgeB = mMarginTop + cropHeight;
+            edgeL = mMarginSide;
+            edgeR = mMarginSide + cropWidth;
+        }
+
         mBackgroundPaint = PaintUtil.newBackgroundPaint(context);
         mBorderPaint = PaintUtil.newBorderPaint(context);
         mGuidelinePaint = PaintUtil.newGuidelinePaint();
@@ -172,6 +188,23 @@ public class CropOverlayView extends View implements IGetImageBounds {
         canvas.drawLine(left, y1, right, y1, mGuidelinePaint);
         final float y2 = bottom - oneThirdCropHeight;
         canvas.drawLine(left, y2, right, y2, mGuidelinePaint);
+    }
+
+    private int getActionbarSize() {
+        TypedValue tv = new TypedValue();
+        if (mContext.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            return TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        }
+        return 0;
+    }
+
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
 }

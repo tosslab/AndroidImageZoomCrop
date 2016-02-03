@@ -27,8 +27,9 @@ public class PaintUtil {
 
     private static final int DEFAULT_CORNER_COLOR = Color.WHITE;
     private static final String SEMI_TRANSPARENT = "#AAFFFFFF";
+    private static final String BORDERLINE_COLOR = "#FF00A6E9";
     private static final String DEFAULT_BACKGROUND_COLOR_ID = "#B029303F";//"#B0000000";
-    private static final float DEFAULT_LINE_THICKNESS_DP = 1;
+    private static final float DEFAULT_LINE_THICKNESS_DP = 3;
     private static final float DEFAULT_CORNER_THICKNESS_DP = 5;
     private static final float DEFAULT_GUIDELINE_THICKNESS_PX = 2;
 
@@ -36,7 +37,7 @@ public class PaintUtil {
 
     /**
      * Creates the Paint object for drawing the crop window border.
-     * 
+     *
      * @param context the Context
      * @return new Paint object
      */
@@ -47,7 +48,7 @@ public class PaintUtil {
 
         final Paint borderPaint = new Paint();
         borderPaint.setAntiAlias(true);
-        borderPaint.setColor(Color.parseColor(SEMI_TRANSPARENT));
+        borderPaint.setColor(Color.parseColor(BORDERLINE_COLOR));
         borderPaint.setStrokeWidth(lineThicknessPx);
         borderPaint.setStyle(Paint.Style.STROKE);
 
@@ -56,7 +57,7 @@ public class PaintUtil {
 
     /**
      * Creates the Paint object for drawing the crop window guidelines.
-     * 
+     *
      * @return the new Paint object
      */
     public static Paint newGuidelinePaint() {
@@ -71,7 +72,7 @@ public class PaintUtil {
     /**
      * Creates the Paint object for drawing the translucent overlay outside the
      * crop window.
-     * 
+     *
      * @param context the Context
      * @return the new Paint object
      */
@@ -85,7 +86,7 @@ public class PaintUtil {
 
     /**
      * Creates the Paint object for drawing the corners of the border
-     * 
+     *
      * @param context the Context
      * @return the new Paint object
      */
@@ -104,7 +105,7 @@ public class PaintUtil {
 
     /**
      * Returns the value of the corner thickness
-     * 
+     *
      * @return Float equivalent to the corner thickness
      */
     public static float getCornerThickness() {
@@ -113,11 +114,10 @@ public class PaintUtil {
 
     /**
      * Returns the value of the line thickness of the border
-     * 
+     *
      * @return Float equivalent to the line thickness
      */
     public static float getLineThickness() {
         return DEFAULT_LINE_THICKNESS_DP;
     }
-
 }
