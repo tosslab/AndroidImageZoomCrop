@@ -10,7 +10,7 @@ import android.widget.SeekBar;
 /**
  * A SeekBar whose purpose is to represent a rotation 360° spectrum. Its center is 0° and its
  * extremes represent 180° rotations, and the "progress" can be directly set in degrees.
- * <p/>
+ *
  * Usage:
  * - Do NOT call {@link #setMax(int)}
  * - Use {@link #setRotationProgress(float)} instead of {@link #setProgress(int)}
